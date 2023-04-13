@@ -20,13 +20,19 @@ class DBHelper(context: Context?) : SQLiteOpenHelper(context, "Login.db", null, 
     contentValues.put("username", username)
     contentValues.put("password", password)
     val result = MyDB.insert("users", null, contentValues)
-    return if (result == -1L) false else true
+    if (result == -1L)
+      return false
+    else
+      return true
   }
 
   fun checkusername(username: String): Boolean {
     val MyDB = this.writableDatabase
     val cursor = MyDB.rawQuery("Select * from users where username = ?", arrayOf(username))
-    return if (cursor.count > 0) true else false
+    if (cursor.count > 0)
+      return true
+    else
+      return false
   }
 
   fun checkusernamepassword(username: String, password: String): Boolean {

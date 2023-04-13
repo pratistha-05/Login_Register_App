@@ -1,67 +1,87 @@
-package com.learnandroid.loginsqlite
+package com.example.myapplication
 
-import android.R
 import android.content.Intent
+import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.view.View
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import com.example.myapplication.HomeActivity
-import com.example.myapplication.loginActivity
+import com.google.android.material.snackbar.Snackbar
+import com.learnandroid.loginsqlite.DBHelper
 
 class MainActivity : AppCompatActivity() {
-  var username: EditText? = null
-  var password: EditText? = null
-  var repassword: EditText? = null
-  var signup: Button? = null
-  var signin: Button? = null
-  var DB: DBHelper? = null
-  override fun onCreate(savedInstanceState: Bundle?) {
-    super.onCreate(savedInstanceState)
-    setContentView(com.example.myapplication.R.layout.activity_main)
-    password = findViewById<View>(R.id.email) as EditText
-    repassword = findViewById<View>(R.id.repassword) as EditText
-    signup = findViewById<View>(R.id.btnsignup) as Button
-    signin = findViewById<View>(R.id.btnsignin) as Button
-    DB = DBHelper(this)
-    signup!!.setOnClickListener {
-      val user = username!!.text.toString()
-      val pass = password!!.text.toString()
-      val repass = repassword!!.text.toString()
-      if (user == "" || pass == "" || repass == "") Toast.makeText(
-        this@MainActivity, "Please enter all the fields", Toast.LENGTH_SHORT
-      ).show() else {
-        if (pass == repass) {
-          val checkuser: Boolean = DB!!.checkusername(user)
-          if (checkuser == false) {
-            val insert: Boolean = DB!!.insertData(user, pass)
-            if (insert == true) {
-              Toast.makeText(this@MainActivity, "Registered successfully", Toast.LENGTH_SHORT)
-                .show()
-              val intent = Intent(applicationContext, HomeActivity::class.java)
-              startActivity(intent)
+
+    private lateinit var DB: DBHelper
+
+    private lateinit var username: EditText
+
+    private lateinit var password: EditText
+
+    private lateinit var repassword: EditText
+
+    private lateinit var signup: Button
+
+    private lateinit var signin: Button
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
+
+        initialiseVariables()
+
+        signup.setOnClickListener {
+            if (username.text.isNullOrEmpty())
+            {
+                username.error = "Please enter the email"
+                username.requestFocus()
+            }
+            if( password.text.isNullOrEmpty()) {
+                password.error = "Please enter the password"
+                password.requestFocus()
+            }
+            if( repassword.text.isNullOrEmpty()) {
+                repassword.error = "Please re-enter the password"
+                repassword.requestFocus()
             }
             else {
-              Toast.makeText(this@MainActivity, "Registration failed", Toast.LENGTH_SHORT).show()
+                if (password.text.toString() == repassword.text.toString() && !username.text.isNullOrEmpty() && !password.text.isNullOrEmpty() && !repassword.text.isNullOrEmpty()) {
+
+                    val checkuser: Boolean = DB.checkusername(username.text.toString())
+                    if (!checkuser) {
+                        insertUserIntoDatabase()
+                    }
+                    else
+                    {
+                        Snackbar.make(signup, "User already exists! please sign in", Snackbar.LENGTH_LONG).show()
+                    }
+                } else
+                {
+                    Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show()
+                }
             }
-          }
-          else
-          {
-            Toast.makeText(
-              this@MainActivity, "User already exists! please sign in", Toast.LENGTH_SHORT
-            ).show()
-          }
-        } else
-        {
-          Toast.makeText(this@MainActivity, "Passwords not matching", Toast.LENGTH_SHORT).show()
         }
-      }
+        signin.setOnClickListener {
+            startActivity(Intent(applicationContext, loginActivity::class.java))
+        }
+
     }
-    signin!!.setOnClickListener {
-      val intent = Intent(applicationContext, loginActivity::class.java)
-      startActivity(intent)
+    private fun initialiseVariables(){
+        username = findViewById(R.id.emailInput)
+        password = findViewById(R.id.passwordInput)
+        repassword = findViewById(R.id.re_passwordInput)
+        signup = findViewById(R.id.signup_button)
+        signin = findViewById(R.id.btnLogin)
+        DB = DBHelper(this)
     }
-  }
+    private fun insertUserIntoDatabase(){
+        val insert: Boolean = DB.insertData(username.text.toString(), password.text.toString())
+        if (insert) {
+            Toast.makeText(this, "Registered successfully", Toast.LENGTH_SHORT).show()
+            startActivity(Intent(applicationContext, HomeActivity::class.java))
+        }
+        else {
+            Toast.makeText(this, "Registration failed", Toast.LENGTH_SHORT).show()
+        }
+    }
+
 }
