@@ -33,8 +33,20 @@ class loginActivity : AppCompatActivity() {
     loginButton.setOnClickListener {
       if (username.text.isNullOrEmpty())
         username.error = "Please enter the email"
-      if( password.text.isNullOrEmpty())
+      else if(!validateEmail(username.text.toString().trim()))
+      {
+        username.error = "Please enter a valid email"
+        username.requestFocus()
+      }
+      if( password.text.isNullOrEmpty()) {
         password.error = "Please enter the password"
+        password.requestFocus()
+      }
+      else if(password.text.toString().length < 6)
+      {
+        password.error = "Password must be at least 6 characters"
+        password.requestFocus()
+      }
       else {
           val checkuserpass = DB.checkusernamepassword(username.text.toString(), password.text.toString())
           if (checkuserpass) {
@@ -54,6 +66,10 @@ class loginActivity : AppCompatActivity() {
     forgot_password.setOnClickListener {
         startActivity(Intent(applicationContext, ForgotPasswordActivity::class.java))
     }
+  }
+  private fun validateEmail(email:String):Boolean
+  {
+    return email.matches(Regex("[a-zA-Z0-9._-]+@[a-z]+\\\\.+[a-z]+"))
   }
   private fun initialiseVariables() {
     username = findViewById(R.id.login_emailInput)

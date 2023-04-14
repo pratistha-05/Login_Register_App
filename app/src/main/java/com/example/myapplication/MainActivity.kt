@@ -3,6 +3,7 @@ package com.example.myapplication
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import android.util.Patterns
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Toast
@@ -35,8 +36,18 @@ class MainActivity : AppCompatActivity() {
                 username.error = "Please enter the email"
                 username.requestFocus()
             }
+            else if(!validateEmail(username.text.toString().trim()))
+            {
+                username.error = "Please enter a valid email"
+                username.requestFocus()
+            }
             if( password.text.isNullOrEmpty()) {
                 password.error = "Please enter the password"
+                password.requestFocus()
+            }
+            else if(password.text.toString().length < 6)
+            {
+                password.error = "Password must be at least 6 characters"
                 password.requestFocus()
             }
             if( repassword.text.isNullOrEmpty()) {
@@ -44,19 +55,22 @@ class MainActivity : AppCompatActivity() {
                 repassword.requestFocus()
             }
             else {
-                if (password.text.toString() == repassword.text.toString() && !username.text.isNullOrEmpty() && !password.text.isNullOrEmpty() && !repassword.text.isNullOrEmpty()) {
+                if (!username.text.isNullOrEmpty() && !password.text.isNullOrEmpty() && !repassword.text.isNullOrEmpty() && validateEmail(username.text.toString().trim())){
+                    if (password.text.toString() == repassword.text.toString()) {
 
-                    val checkuser: Boolean = DB.checkusername(username.text.toString())
-                    if (!checkuser) {
-                        insertUserIntoDatabase()
+                        val checkuser: Boolean = DB.checkusername(username.text.toString())
+                        if (!checkuser) {
+                            insertUserIntoDatabase()
+                        } else {
+                            Snackbar.make(
+                                signup,
+                                "User already exists! please sign in",
+                                Snackbar.LENGTH_LONG
+                            ).show()
+                        }
+                    } else {
+                        Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show()
                     }
-                    else
-                    {
-                        Snackbar.make(signup, "User already exists! please sign in", Snackbar.LENGTH_LONG).show()
-                    }
-                } else
-                {
-                    Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show()
                 }
             }
         }
@@ -64,6 +78,10 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(applicationContext, loginActivity::class.java))
         }
 
+    }
+    private fun validateEmail(email:String):Boolean
+    {
+        return email.matches(Regex("[a-zA-Z0-9._-]+@[a-z]+\\\\.+[a-z]+"))
     }
     private fun initialiseVariables(){
         username = findViewById(R.id.emailInput)

@@ -33,24 +33,27 @@ class ForgotPasswordActivity : AppCompatActivity() {
         if (password.text.toString() != repassword.text.toString()) {
           Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show()
           return@setOnClickListener
-        }
-        else if (password.text.toString() == repassword.text.toString() && !username.text.isNullOrEmpty()) {
-          val update = DB.updatePassword(username.text.toString(), password.text.toString())
-          if (update) {
-            Toast.makeText(
-              this, "Password for $username has been changed successfully!", Toast.LENGTH_LONG
-            ).show()
-            startActivity(Intent(applicationContext, HomeActivity::class.java))
+        } else if (password.text.toString() == repassword.text.toString() && !username.text.isNullOrEmpty()) {
+          if (DB.checkusername(username.text.toString().trim())) {
+            val update = DB.updatePassword(username.text.toString(), password.text.toString())
+            if (update) {
+              Toast.makeText(
+                this, "Password for has been changed successfully!", Toast.LENGTH_LONG
+              ).show()
+              startActivity(Intent(applicationContext, HomeActivity::class.java))
+            } else {
+              Snackbar.make(
+                signin, "Please enter a new password you have not used before", Snackbar.LENGTH_LONG
+              ).show()
+            }
           } else {
-            Snackbar.make(
-              signin, "Please enter a new password you have not used before", Snackbar.LENGTH_LONG
-            ).show()
+            Toast.makeText(this, "Email does not exist!", Toast.LENGTH_SHORT).show()
           }
         }
       }
     }
-
   }
+
 
   private fun initialiseVariables() {
     username = findViewById(R.id.forgot_emailInput)

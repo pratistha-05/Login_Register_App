@@ -40,7 +40,6 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="Enter Your Name"
-        android:inputType="textEmailAddress"
         android:textColorHighlight="#7C4DFF"
         app:boxStrokeColor="#7C4DFF"
         app:layout_constraintBottom_toTopOf="@+id/signup_button"
