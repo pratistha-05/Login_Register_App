@@ -26,29 +26,33 @@ class ForgotPasswordActivity : AppCompatActivity() {
     initialiseVariables()
 
     signin.setOnClickListener {
-      if (username.text.isNullOrEmpty())
-        username.error = "Please enter the email"
-      if( password.text.isNullOrEmpty())
-        password.error = "Please enter the password"
-      if( repassword.text.isNullOrEmpty()) {
-        repassword.error = "Please re-enter the password"
-        repassword.requestFocus()
-      }
+      if (username.text.isNullOrEmpty()) username.error = "Please enter the email"
+      if (password.text.isNullOrEmpty()) password.error = "Please enter the password"
+      if (repassword.text.isNullOrEmpty()) repassword.error = "Please re-enter the password"
       else {
-        val checkuserpass = DB.checkusernamepassword(username.text.toString(), password.text.toString())
-        if (checkuserpass) {
-          Snackbar.make(signin, "Password for $username has been changed", Snackbar.LENGTH_LONG).show()
-          startActivity(Intent(applicationContext, HomeActivity::class.java))
+        if (password.text.toString() != repassword.text.toString()) {
+          Toast.makeText(this, "Passwords do not match!", Toast.LENGTH_SHORT).show()
+          return@setOnClickListener
         }
-        else {
-//          Snackbar.make(signin, "Invalid Email or Password", Snackbar.LENGTH_LONG).show()
+        else if (password.text.toString() == repassword.text.toString() && !username.text.isNullOrEmpty()) {
+          val update = DB.updatePassword(username.text.toString(), password.text.toString())
+          if (update) {
+            Toast.makeText(
+              this, "Password for $username has been changed successfully!", Toast.LENGTH_LONG
+            ).show()
+            startActivity(Intent(applicationContext, HomeActivity::class.java))
+          } else {
+            Snackbar.make(
+              signin, "Please enter a new password you have not used before", Snackbar.LENGTH_LONG
+            ).show()
+          }
         }
       }
     }
 
   }
 
-  private fun initialiseVariables(){
+  private fun initialiseVariables() {
     username = findViewById(R.id.forgot_emailInput)
     password = findViewById(R.id.forgot_passwordInput)
     repassword = findViewById(R.id.re_forgot_passwordInput)

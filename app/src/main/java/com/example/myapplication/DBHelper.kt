@@ -43,6 +43,16 @@ class DBHelper(context: Context?) : SQLiteOpenHelper(context, "Login.db", null, 
     )
     return if (cursor.count > 0) true else false
   }
+  fun updatePassword(username:String, password:String):Boolean{
+    val MyDB = this.writableDatabase
+    val contentValues = ContentValues()
+    contentValues.put("password", password)
+    val cursor = MyDB.update("users", contentValues, "username = ?", arrayOf(username))
+    if (cursor == -1)
+      return false
+    else
+      return true
+  }
 
   companion object {
     const val DBNAME = "Login.db"
